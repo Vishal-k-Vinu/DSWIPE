@@ -26,8 +26,8 @@ export default function ScrollShowcase() {
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top",
-        end: "+=8000",
-        scrub: 1.5,
+        end: "+=3000",
+        scrub: 3,
         pin: true,
       },
       defaults: { ease: "none" }
