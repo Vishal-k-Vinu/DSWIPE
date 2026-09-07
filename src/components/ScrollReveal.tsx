@@ -17,6 +17,7 @@ export interface ScrollRevealProps {
   pin?: boolean;
   duration?: number;
   delay?: number;
+  direction?: "up" | "down" | "left" | "right";
   as?: React.ElementType;
 }
 
@@ -32,6 +33,7 @@ export default function ScrollReveal({
   pin = false,
   duration = 0.8,
   delay = 0,
+  direction = "up",
   as: Component = "div",
 }: ScrollRevealProps) {
   const containerRef = useRef<any>(null);
@@ -54,10 +56,22 @@ export default function ScrollReveal({
         }
       }
 
+      // Determine initial slide positions
+      let initialY = 0;
+      let initialX = 0;
+      
+      if (!pin) {
+        if (direction === "up") initialY = 50;
+        else if (direction === "down") initialY = -50;
+        else if (direction === "left") initialX = -50;
+        else if (direction === "right") initialX = 50;
+      }
+
       // 1. Initial State: fully GPU accelerated (opacity + transform)
       gsap.set(targetElements, {
         opacity: 0,
-        y: pin ? 0 : 50, // If pinned, we might want them to slide from bottom during scroll
+        y: initialY,
+        x: initialX,
         scale: scaleEffect ? 1.05 : 1
       });
 
@@ -83,10 +97,10 @@ export default function ScrollReveal({
         if (stagger && targetElements.length > 0) {
           targetElements.forEach((el, index) => {
             // Sequential fade/slide in as you scroll
-            tl.to(el, { opacity: 1, y: 0, scale: 1, duration: 1 }, index * 0.5);
+            tl.to(el, { opacity: 1, y: 0, x: 0, scale: 1, duration: 1 }, index * 0.5);
           });
         } else {
-          tl.to(targetElements, { opacity: 1, y: 0, scale: 1, duration: 1 });
+          tl.to(targetElements, { opacity: 1, y: 0, x: 0, scale: 1, duration: 1 });
         }
       } else {
         // 2b. Standard Reveal Mode
@@ -98,6 +112,7 @@ export default function ScrollReveal({
             gsap.to(batch, {
               opacity: 1,
               y: 0,
+              x: 0,
               scale: 1,
               duration: duration,
               delay: delay / 1000, // Convert ms to seconds for GSAP
