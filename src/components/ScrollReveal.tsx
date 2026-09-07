@@ -45,7 +45,7 @@ export default function ScrollReveal({
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       // Determine what elements to animate
       let targetElements: HTMLElement[] = [containerRef.current];
-      
+
       if (stagger) {
         // If staggering, target the direct children
         const childrenNodes = Array.from(containerRef.current.children) as HTMLElement[];
@@ -55,8 +55,8 @@ export default function ScrollReveal({
       }
 
       // 1. Initial State: fully GPU accelerated (opacity + transform)
-      gsap.set(targetElements, { 
-        opacity: 0, 
+      gsap.set(targetElements, {
+        opacity: 0,
         y: pin ? 0 : 50, // If pinned, we might want them to slide from bottom during scroll
         scale: scaleEffect ? 1.05 : 1
       });
@@ -65,11 +65,11 @@ export default function ScrollReveal({
         // 2a. Pinned Mode: Feature Carousel Style
         // Animates based on scroll progress rather than a one-off trigger
         if (stagger) {
-           // We set them to absolute so they stack like a carousel if needed, or leave flow to caller
-           // But normally for a scroll scrub, we start them slightly offset
-           gsap.set(targetElements, { y: 50 });
+          // We set them to absolute so they stack like a carousel if needed, or leave flow to caller
+          // But normally for a scroll scrub, we start them slightly offset
+          gsap.set(targetElements, { y: 50 });
         }
-        
+
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -79,20 +79,20 @@ export default function ScrollReveal({
             scrub: 1, // Smooth scrubbing
           }
         });
-        
+
         if (stagger && targetElements.length > 0) {
-           targetElements.forEach((el, index) => {
-             // Sequential fade/slide in as you scroll
-             tl.to(el, { opacity: 1, y: 0, scale: 1, duration: 1 }, index * 0.5);
-           });
+          targetElements.forEach((el, index) => {
+            // Sequential fade/slide in as you scroll
+            tl.to(el, { opacity: 1, y: 0, scale: 1, duration: 1 }, index * 0.5);
+          });
         } else {
-           tl.to(targetElements, { opacity: 1, y: 0, scale: 1, duration: 1 });
+          tl.to(targetElements, { opacity: 1, y: 0, scale: 1, duration: 1 });
         }
       } else {
         // 2b. Standard Reveal Mode
         // Triggers once when 15-20% visible near viewport bottom
         ScrollTrigger.batch(targetElements, {
-          start: "top 85%", 
+          start: "top 85%",
           once: true,
           onEnter: (batch) => {
             gsap.to(batch, {
@@ -110,46 +110,46 @@ export default function ScrollReveal({
     });
 
     mm.add("(prefers-reduced-motion: reduce)", () => {
-       // Fallback: strictly opacity fades, no transforms (y/scale)
-       let targetElements: HTMLElement[] = [containerRef.current];
-       if (stagger) {
-         const childrenNodes = Array.from(containerRef.current.children) as HTMLElement[];
-         if (childrenNodes.length > 0) targetElements = childrenNodes;
-       }
+      // Fallback: strictly opacity fades, no transforms (y/scale)
+      let targetElements: HTMLElement[] = [containerRef.current];
+      if (stagger) {
+        const childrenNodes = Array.from(containerRef.current.children) as HTMLElement[];
+        if (childrenNodes.length > 0) targetElements = childrenNodes;
+      }
 
-       gsap.set(targetElements, { opacity: 0 });
+      gsap.set(targetElements, { opacity: 0 });
 
-       if (pin) {
-         const tl = gsap.timeline({
-           scrollTrigger: {
-             trigger: containerRef.current,
-             start: "top top",
-             end: "+=2000",
-             pin: true,
-             scrub: 1,
-           }
-         });
-         
-         if (stagger) {
-            targetElements.forEach((el, i) => tl.to(el, { opacity: 1, duration: 1 }, i * 0.5));
-         } else {
-           tl.to(targetElements, { opacity: 1, duration: 1 });
-         }
-       } else {
-         ScrollTrigger.batch(targetElements, {
-           start: "top 85%",
-           once: true,
-           onEnter: (batch) => {
-             gsap.to(batch, {
-               opacity: 1,
-               duration: duration,
-               delay: delay / 1000,
-               ease: "power2.out",
-               stagger: stagger ? 0.12 : 0,
-             });
-           }
-         });
-       }
+      if (pin) {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: "+=2000",
+            pin: true,
+            scrub: 1,
+          }
+        });
+
+        if (stagger) {
+          targetElements.forEach((el, i) => tl.to(el, { opacity: 1, duration: 1 }, i * 0.5));
+        } else {
+          tl.to(targetElements, { opacity: 1, duration: 1 });
+        }
+      } else {
+        ScrollTrigger.batch(targetElements, {
+          start: "top 85%",
+          once: true,
+          onEnter: (batch) => {
+            gsap.to(batch, {
+              opacity: 1,
+              duration: duration,
+              delay: delay / 1000,
+              ease: "power2.out",
+              stagger: stagger ? 0.12 : 0,
+            });
+          }
+        });
+      }
     });
 
     return () => mm.revert();
@@ -168,15 +168,15 @@ export default function ScrollReveal({
  */
 export function useScrollReveal(options = { start: "top 85%", stagger: 0.12, duration: 0.8, y: 50 }) {
   const ref = useRef<any>(null);
-  
+
   useGSAP(() => {
     if (!ref.current) return;
     const mm = gsap.matchMedia();
-    
+
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const elements = Array.from(ref.current.children) as HTMLElement[];
       gsap.set(elements, { opacity: 0, y: options.y });
-      
+
       ScrollTrigger.batch(elements, {
         start: options.start,
         once: true,
@@ -191,7 +191,7 @@ export function useScrollReveal(options = { start: "top 85%", stagger: 0.12, dur
         }
       });
     });
-    
+
     mm.add("(prefers-reduced-motion: reduce)", () => {
       const elements = Array.from(ref.current.children) as HTMLElement[];
       gsap.set(elements, { opacity: 0 });
